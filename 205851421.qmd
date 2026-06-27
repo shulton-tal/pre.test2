@@ -1,0 +1,47 @@
+---
+title: "pre.test2.1"
+format: html
+editor: visual
+---
+
+# Q1
+
+```{r}
+shipping = read.csv("C:/R/pre.test2.1/Shipping.csv")
+shipping
+#| echo=false
+```
+
+```{r}
+library(tidyverse)
+female_on_time = shipping |>
+  filter(Gender == 'F') |>
+  filter(Reached.on.Time_Y.N == 1) |>
+  group_by(Warehouse_block) |>
+  summarise(avg_F_ontime_cust_rat = mean(Customer_rating))
+female_on_time
+  
+```
+
+# Q2
+
+```{r}
+e1 = shipping |>
+  pivot_longer(cols = c(France, Spain),
+               names_to = 'shipping_transaction_country') |>
+  filter(value == 1) |>
+  select(-value)
+e1
+```
+
+# Q3
+
+```{r}
+plot = shipping |>
+  ggplot(aes(Weight_in_gms, Cost_of_the_Product, color = Mode_of_Shipment)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  facet_wrap(~Warehouse_block) +
+  theme_bw()
+plot
+```
