@@ -1,0 +1,98 @@
+---
+title: "pre_test2"
+author: "tal shulton"
+format: html
+editor: visual
+---
+
+#Q1
+
+#1
+
+```{r}
+library(tidyverse)
+penguins = as_tibble(penguins)
+penguins
+```
+
+#2
+
+```{r}
+e1 = penguins |> 
+  pivot_longer(
+    cols = 'bill_len':'body_mass',
+    names_to = 'measuremwnt',
+    values_to = 'value',
+    values_drop_na = TRUE)
+e1
+```
+
+#3
+
+```{r}
+e1 = penguins |> 
+  pivot_longer(
+    cols = 'bill_len':'body_mass',
+    names_to = 'measurement',
+    values_to = 'value',
+    values_drop_na = TRUE) |>
+  separate(col = measurement, c('measurement_type', 'measurement_unit'))
+e1
+```
+
+#Q2
+
+#1
+
+```{r}
+e2 = e1 |>
+  filter(species == 'Adelie')
+e2
+```
+
+#2
+
+```{r}
+e2 = e1 |>
+  filter(species == 'Adelie') |>
+  group_by(sex, measurement_type, measurement_unit) |>
+  summarise(
+    mean_value = mean(value, na.rm = TRUE),
+    min_value = min(value, na.rm = TRUE),
+    max_value = max(value, na.rm = TRUE)) |>
+  mutate(range_value = max_value - min_value)
+e2
+```
+
+#Q3
+
+```{r}
+e3 = e2 |>
+  filter(!is.na(sex),
+         !is.na(measurement_type),
+         !is.na(measurement_unit),
+         !is.na(range_value))
+e3
+```
+
+```{r}
+library(ggplot2)
+e3_plot = e3 |>
+  ggplot(aes(x = range_value, fill = sex)) +
+  geom_histogram(bins = 100) + 
+  ggtitle('Distribution of Range Values Faceted by Measurement Type') +
+  facet_wrap(~measurement_type) +
+  xlab('Range Value') +
+  theme_minimal()
+e3_plot
+```
+
+#Q4
+
+```{r}
+e1 |>
+  inner_join(e3) |>
+  filter(year == c(2007, 2008)) |>
+  group_by(species, measurement_type, measurement_unit) |>
+  summarise(avg_measure_type = mean(value, na.rm = TRUE))
+```
